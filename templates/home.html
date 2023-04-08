@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <style>
+      body {
+        font-family: Arial, Helvetica, sans-serif;
+        background-color: #f1f1f1;
+      }
+      
+      .container {
+        background-color: #fff;
+        border-radius: 10px;
+        padding: 20px;
+        box-shadow: 0px 0px 10px #888;
+        margin: 50px auto;
+        max-width: 800px;
+      }
+      
+      .slider-label {
+        display: inline-block;
+        width: 200px;
+        font-size: 17px;
+        font-weight: bold;
+        margin-bottom: 5px;
+      }
+      
+      .slider-container {
+        display: flex;
+        align-items: center;
+        margin-bottom: 20px;
+      }
+      
+      .slider {
+        flex: 1;
+        margin-right: 20px;
+      }
+      
+      .slider-display {
+        font-weight: bold;
+        margin-left: 10px;
+        width: 50px;
+        text-align: center;
+      }
+      
+      .predict-container {
+        text-align: center;
+        margin-top: 16px;
+      }
+
+      .para-container {
+        text-align: center;
+        color: rgb(78, 76, 76);
+        font-size: 10px;
+      }
+      .title-container {
+        text-align: center;
+        color: #088ae1;
+        font-size: 20px;
+        display: flex;
+    align-items: center;
+    justify-content: center;
+      }
+
+      .title-container h1 {
+    order: 1;
+    margin-left: 10px;
+  }
+
+  .title-container img {
+    order: 1;
+    width: 100px;
+    height: 100px;
+  }
+      
+      .predict-btn {
+        background-color: #3498db;
+        color: white;
+        padding: 12px 100px;
+        border: none;
+        border-radius: 30px;
+        cursor: pointer;
+        font-size: 25px;
+        display: block;
+        margin: 0 auto;
+      }
+      
+      .prediction {
+        margin-top: 20px;
+        font-size: 32px;
+        font-weight: bold;
+        text-align: center;
+        color: green;
+      }
+    </style>
+  </head>
+  <body>
+    <form>
+      <div class="container">
+        <div class="title-container">
+          <img src="{{ url_for('static', filename='images/crop.png') }}" alt="Logo">
+          <h1>Smart Crop</h1>
+        </div>
+        <div class="para-container">
+          <h1>Find out the best crop to grow based on your soil and weather conditions!</h1>
+        </div>
+        <br>
+       <div class="slider-container">
+          <label class="slider-label" for="slider1">Ratio of Nitrogen:</label>
+          <input class="slider" type="range" id="slider1" name="slider1" min="0" max="150" value="0" onchange="updateTextInput(this.value, 'slider1', 'slider1_display')">
+          <span class="slider-display" id="slider1_display"></span>
+          <br>
+        </div>
+        <div class="slider-container">
+          <label class="slider-label" for="slider2">Ratio of Phosphorous:</label>
+          <input class="slider" type="range" id="slider2" name="slider2" min="0" max="150" value="0" onchange="updateTextInput(this.value, 'slider2', 'slider2_display')">
+          <span class="slider-display" id="slider2_display"></span>
+          <br>
+        </div>
+        
+        <div class="slider-container">
+          <label class="slider-label" for="slider3">Ratio of Potassium:</label>
+          <input class="slider" type="range" id="slider3" name="slider3" min="0" max="200" value="0" onchange="updateTextInput(this.value, 'slider3', 'slider3_display')">
+          <span class="slider-display" id="slider3_display"></span>
+          <br>
+        </div>
+        
+        <div class="slider-container">
+          <label class="slider-label" for="slider4">Temperature (in Celsius):</label>
+          <input class="slider" type="range" id="slider4" name="slider4" min="0" max="50" value="0" onchange="updateTextInput(this.value, 'slider4', 'slider4_display')">
+          <span class="slider-display" id="slider4_display"></span>
+          <br>
+        </div>
+        
+        <div class="slider-container">  
+          <label class="slider-label" for="slider5">Humidity in %:</label>
+          <input class="slider" type="range" id="slider5" name="slider5" min="0" max="100" value="0" step="0.001" onchange="updateTextInput(this.value, 'slider5', 'slider5_display')">
+          <span class="slider-display" id="slider5_display"></span>
+          <br>
+        </div>
+        
+        <div class="slider-container">
+          <label class="slider-label" for="slider6">pH value of soil:</label>
+          <input class="slider" type="range" id="slider6" name="slider6" min="0" max="10" value="0" step="0.001" onchange="updateTextInput(this.value, 'slider6', 'slider6_display')">
+          <span class="slider-display" id="slider6_display"></span>
+          <br>
+        </div>
+        
+        <div class="slider-container">
+          <label class="slider-label" for="slider7">Rainfall in mm:</label>
+          <input class="slider" type="range" id="slider7" name="slider7" min="0" max="300" value="0" step="0.001" onchange="updateTextInput(this.value, 'slider7', 'slider7_display')">
+          <span class="slider-display" id="slider7_display"></span>
+          <br>
+        </div>
+
+      </div>
+      <div class="predict-container">
+      <button type="button" id="predict_button" class="predict-btn">Find my crop!</button>
+    </div>
+    <div class="prediction" id="prediction"></div>
+</div>
+    </form>
+        
+    
+      <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+  $(document).ready(function() {
+    $("#predict_button").click(function(){
+      $.ajax({
+        type: 'POST',
+        url: '/predict',
+        data: $('form').serialize(),
+        success: function(response){
+          console.log("prediction " + response);
+          $("#prediction").text("Recommended Crop: " + response);
+        },
+        error: function(error){
+          console.log(error);
+        }
+      });
+    });
+  });
+
+  document.getElementById("slider1_display").textContent = document.getElementById("slider1").value;
+  document.getElementById("slider2_display").textContent = document.getElementById("slider2").value;
+  document.getElementById("slider3_display").textContent = document.getElementById("slider3").value;
+  document.getElementById("slider4_display").textContent = document.getElementById("slider4").value;
+  document.getElementById("slider5_display").textContent = document.getElementById("slider5").value;
+  document.getElementById("slider6_display").textContent = document.getElementById("slider6").value;
+  document.getElementById("slider7_display").textContent = document.getElementById("slider7").value;
+
+  function updateTextInput(val, id, display_id) {
+    document.getElementById(id).value = val;
+    document.getElementById(display_id).textContent = val;
+  }
+</script>
+
+    
+    
+  </body>
+  </html>
